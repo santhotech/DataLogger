@@ -1,0 +1,18 @@
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\bin\Debug\DataLogger.exe
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\bin\Debug\DataLogger.pdb
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\DataLogger.Form1.resources
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\DataLogger.Properties.Resources.resources
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\ResGen.read.1.tlog
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\ResGen.write.1.tlog
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\DataLogger.exe
+C:\Users\santhosh\AppData\Local\Temporary Projects\DataLogger\obj\x86\Debug\DataLogger.pdb
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\DataLogger.exe
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\DataLogger.pdb
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.pdb
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\DataLogger.Form1.resources
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\DataLogger.Properties.Resources.resources
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\ResGen.read.1.tlog
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\ResGen.write.1.tlog
