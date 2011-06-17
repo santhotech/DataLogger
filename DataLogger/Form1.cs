@@ -36,11 +36,13 @@ namespace DataLogger
 
         private void AddLogger()
         {
-            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };            
+            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };
+            AddToListView(txtboxStr);
             if (val.ValidateForm(txtboxStr))
             {
                 Thread t = new Thread(new ParameterizedThreadStart(StartLoggin));
-                t.Start(txtboxStr);
+                t.IsBackground = true;
+                t.Start(txtboxStr);                
             }
             else
             {
@@ -152,8 +154,20 @@ namespace DataLogger
             fileName = fldrName + "\\" + fileName + ".txt";                        
             return fileName;
         }
-        public void AddToListView()
-        {
+        public void AddToListView(string[] contents)
+        {            
+            
+            string logrName = contents[0];
+            string ipAddr = contents[1];
+            string fileSize = contents[3];
+            string prtNo = contents[2];
+            string fldrName = contents[4];
+            string[] toListView = new string[3] { logrName, ipAddr, prtNo };
+
+            ListViewItem itm = new ListViewItem(toListView);
+            logrList.Items.Add(itm);
+
+            /*
             Button b = new Button();
             b.Text = "ClickMe";
             b.BackColor = SystemColors.Control;
@@ -161,6 +175,7 @@ namespace DataLogger
             b.Click += new EventHandler(b_Click);
             // Put it in the first column of the fourth row
             logrList.AddEmbeddedControl(b, 0, 3);
+             * */
         }
         public void b_Click(object sender, EventArgs e)
         {
