@@ -45,15 +45,16 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.logrList = new DataLogger.ListViewEx();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.panel2 = new System.Windows.Forms.Panel();
             this.Logo = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -232,34 +233,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Current Loggers";
             // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.Gainsboro;
-            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.Logo);
-            this.panel2.Controls.Add(this.label1);
-            this.panel2.Location = new System.Drawing.Point(7, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(801, 68);
-            this.panel2.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 2);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(114, 22);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Data Logger";
-            // 
             // logrList
             // 
             this.logrList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3,
-            this.columnHeader4});
+            this.columnHeader4,
+            this.columnHeader5});
             this.logrList.Location = new System.Drawing.Point(6, 19);
             this.logrList.Name = "logrList";
             this.logrList.Size = new System.Drawing.Size(514, 201);
@@ -287,6 +268,17 @@
             this.columnHeader4.Text = "Status";
             this.columnHeader4.Width = 80;
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.Gainsboro;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.Logo);
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Location = new System.Drawing.Point(7, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(801, 68);
+            this.panel2.TabIndex = 1;
+            // 
             // Logo
             // 
             this.Logo.BackColor = System.Drawing.SystemColors.ControlText;
@@ -297,6 +289,21 @@
             this.Logo.Size = new System.Drawing.Size(143, 59);
             this.Logo.TabIndex = 30;
             this.Logo.TabStop = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(3, 2);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(114, 22);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Data Logger";
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "operation";
+            this.columnHeader5.Width = 72;
             // 
             // Form1
             // 
@@ -349,6 +356,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         internal System.Windows.Forms.PictureBox Logo;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
     }
 }
 

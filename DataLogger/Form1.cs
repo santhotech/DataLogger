@@ -9,13 +9,17 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using System.Collections;
 using System.IO.Compression;
 
 namespace DataLogger
 {
     public partial class Form1 : Form
-    {
+    {       
         Methods val = new Methods();
+        List<LoggerClass> li = new List<LoggerClass>();
+        
+            
         public Form1()
         {
             InitializeComponent();
@@ -27,22 +31,29 @@ namespace DataLogger
 
         }
 
-        
 
+        int count = 0;
         private void strtBtn_Click(object sender, EventArgs e)
         {
             AddLogger();
         }
-
+        Hashtable ht = new Hashtable();
+        
         private void AddLogger()
         {
-            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };
-            AddToListView(txtboxStr);
+            
+                
+            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };                       
             if (val.ValidateForm(txtboxStr))
             {
+                string uniqueId = val.GetUniqueId(ht); 
+                AddToListView(txtboxStr, count,uniqueId);                
                 Thread t = new Thread(new ParameterizedThreadStart(StartLoggin));
                 t.IsBackground = true;
-                t.Start(txtboxStr);                
+                t.Start(txtboxStr);
+                ht.Add(uniqueId, t);                
+                li.Add(new LoggerClass(txtboxStr,uniqueId,count,1));
+                count++;
             }
             else
             {
@@ -51,28 +62,13 @@ namespace DataLogger
         }
 
         private void fldrBrwsBtn_Click(object sender, EventArgs e)
-        {
+        {            
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
                 fldrNameTxt.Text = folderBrowserDialog1.SelectedPath;
             }                        
-        }
-
-        public TcpClient GetTcpClient(string ip, string port)
-        {
-            TcpClient tc = new TcpClient();
-            if (val.IsAllDigits(port))
-            {
-                int prt = Convert.ToInt32(port);
-                tc.Connect(ip, prt);
-            }
-            else
-            {
-                MessageBox.Show("Cannot connect to the socket", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            return tc;
-        }
+        }      
 
         public void StartLoggin(object obj)
         {
@@ -154,7 +150,7 @@ namespace DataLogger
             fileName = fldrName + "\\" + fileName + ".txt";                        
             return fileName;
         }
-        public void AddToListView(string[] contents)
+        public void AddToListView(string[] contents,int cnt, string unid)
         {            
             
             string logrName = contents[0];
@@ -162,24 +158,30 @@ namespace DataLogger
             string fileSize = contents[3];
             string prtNo = contents[2];
             string fldrName = contents[4];
-            string[] toListView = new string[3] { logrName, ipAddr, prtNo };
+            string[] toListView = new string[4] { logrName, ipAddr, prtNo, "Active" };
 
             ListViewItem itm = new ListViewItem(toListView);
             logrList.Items.Add(itm);
 
-            /*
+            
             Button b = new Button();
-            b.Text = "ClickMe";
+            b.Text = "Stop";
             b.BackColor = SystemColors.Control;
             b.Font = this.Font;
+            b.Name = unid;
             b.Click += new EventHandler(b_Click);
             // Put it in the first column of the fourth row
-            logrList.AddEmbeddedControl(b, 0, 3);
-             * */
+            logrList.AddEmbeddedControl(b, 4, cnt);
+             
         }
         public void b_Click(object sender, EventArgs e)
         {
-
+            Button b = (Button)sender;
+            string n = b.Name;
+            object trd = ht[n];
+            Thread d = (Thread)trd;
+            d.Abort();
+            b.Text = "Start";
         }
 
         public static void CompressStringToFile(string fileName, string value)
@@ -197,6 +199,20 @@ namespace DataLogger
             {
                 gz.Write(b,0,b.Length);
             }
+        }        
+    }
+    public class LoggerClass
+    {
+        string[] contents;
+        string identifier;
+        int index;
+        int action;
+        public LoggerClass(string[] contents, string identifier, int index, int action)
+        {
+            this.contents = contents;
+            this.identifier = identifier;
+            this.index = index;
+            this.action = action;
         }        
     }
 }
