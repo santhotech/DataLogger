@@ -15,7 +15,7 @@ namespace DataLogger
 {
     public partial class Form1 : Form
     {
-        validation val = new validation();
+        Methods val = new Methods();
         public Form1()
         {
             InitializeComponent();
@@ -30,30 +30,17 @@ namespace DataLogger
         
 
         private void strtBtn_Click(object sender, EventArgs e)
-        {            
-            int port;
-            string ip = ipTxt.Text;
-            string logrName = lgrNameTxt.Text;
-            Int32.TryParse(prtTxt.Text,out port);
-            TcpClient tcpClient = new TcpClient();
-            string[] txtboxStr = new string[4] { prtTxt.Text, ipTxt.Text, lgrNameTxt.Text, fldrNameTxt.Text };
+        {
+            AddLogger();
+        }
+
+        private void AddLogger()
+        {
+            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };            
             if (val.ValidateForm(txtboxStr))
             {
-                try
-                {
-                    tcpClient.Connect(ip, port);
-                    object[] obj = new object[4];
-                    obj[0] = tcpClient; obj[1] = logrName; obj[2] = fldrNameTxt.Text;
-                    long flSize = Convert.ToInt32(fileSizeTxt.Text) * 1000000;
-                    obj[3] = flSize;
-                    Thread t = new Thread(new ParameterizedThreadStart(StartLoggin));
-                    t.Start(obj);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    MessageBox.Show("Cannot connect to the data source", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                Thread t = new Thread(new ParameterizedThreadStart(StartLoggin));
+                t.Start(txtboxStr);
             }
             else
             {
@@ -69,29 +56,45 @@ namespace DataLogger
                 fldrNameTxt.Text = folderBrowserDialog1.SelectedPath;
             }                        
         }
+
+        public TcpClient GetTcpClient(string ip, string port)
+        {
+            TcpClient tc = new TcpClient();
+            if (val.IsAllDigits(port))
+            {
+                int prt = Convert.ToInt32(port);
+                tc.Connect(ip, prt);
+            }
+            else
+            {
+                MessageBox.Show("Cannot connect to the socket", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            return tc;
+        }
+
         public void StartLoggin(object obj)
         {
-            Array argArray = new object[3];
-            argArray = (Array)obj;
-            TcpClient tc = (TcpClient)argArray.GetValue(0);            
-            string logrName = (string)argArray.GetValue(1);
-            string fldrName = (string)argArray.GetValue(2);
-            long fileSize = (long)argArray.GetValue(3);
-            MessageBox.Show(fileSize.ToString());
-            string fileName = GetFileName(fldrName, logrName);                                                            
-            bool setflag = true;
+            string[] contents = (string[])obj;
+            bool setflag = true;            
+            string logrName = contents[0];
+            string fldrName = contents[4];
+            long fileSize = val.GetBytesAsLong(contents[3]);            
+            string fileName = GetFileName(fldrName, logrName);
+            int prt = Convert.ToInt32(contents[2]);
+            TcpClient tc = new TcpClient();
+            try { tc.Connect(contents[1], prt); }
+            catch { Error("Cannot connect to the client"); setflag = false; }
+            Thread.Sleep(2000);
             while (setflag)
             {
                 try
                 {
                     long s1 = 0;
-
                     if (File.Exists(fileName))
                     {
                         FileInfo f = new FileInfo(fileName);
                         s1 = f.Length;
                     }
-
                     if (s1 < fileSize)
                     {
                         NetworkStream ns = tc.GetStream();
@@ -105,7 +108,11 @@ namespace DataLogger
                         {
                             File.AppendAllText(fileName, decodedData);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+                        catch
+                        {
+                            Error("Error writing to file");
+                            break;
+                        }
                     }
                     else
                     {
@@ -113,11 +120,16 @@ namespace DataLogger
                         fileName = GetFileName(fldrName, logrName);    
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MessageBox.Show(ex.ToString());
+                    Error("Cannot connect to socket");
+                    break;
                 }
             }            
+        }
+        private void Error(string msg)
+        {
+            MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         public void CompressOldFile(string fileName)
         {

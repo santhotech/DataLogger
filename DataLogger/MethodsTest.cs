@@ -7,24 +7,26 @@ using NUnit.Framework;
 namespace DataLogger
 {
     [TestFixture]
-    public class Form1Test
+    public class MethodsTest
     {
         [Test]
         public void CheckValidationFail()
         {
-            validation validate = new validation();
-            string[] a = new string[4] { "asdd", "asa", "asdd", "" };
+            Methods validate = new Methods();
+            string[] a = new string[4] { "test", "test1", "test2", "" };
             bool k = validate.ValidateForm(a);
             Assert.False(k);
+            string[] b = new string[4] { "test", "", "  ", "test3" };
+            bool j = validate.ValidateForm(b);
+            Assert.False(j);
         }
         [Test]
         public void CheckValidationPass()
         {
-            validation validate = new validation();
+            Methods validate = new Methods();
             string[] a = new string[4] { "asdd", "asa", "asdd", "dnjn" };
             bool k = validate.ValidateForm(a);
             Assert.True(k);
-        }
-        
+        }        
     }
 }
