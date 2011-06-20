@@ -18,57 +18,87 @@ namespace DataLogger
     {       
         Methods val = new Methods();        
         int count = 0;
-        Hashtable ht = new Hashtable();
+        private Hashtable _manifest;
+        private Hashtable _currentAction;
+        private Hashtable _manifestIndex;
+        private Hashtable _manifestBtn;
         private IList<Thread> _threads;
-        private ArrayList _threadNames;
+        private Hashtable _manifestFile;        
                     
         public Form1()
         {
             InitializeComponent();
             _threads = new List<Thread>();
-            _threadNames = new ArrayList();
+            _currentAction = new Hashtable();
+            _manifest = new Hashtable();
+            _manifestFile = new Hashtable();
+            _manifestIndex = new Hashtable();
+            _manifestBtn = new Hashtable();
+
+            ImageList HeightControlImageList = new System.Windows.Forms.ImageList(this.components);
+            HeightControlImageList.ImageSize = new System.Drawing.Size(1, 25);
+            HeightControlImageList.TransparentColor = System.Drawing.Color.Transparent;
+            logrList.SmallImageList = HeightControlImageList;
         }
 
         public void LaunchThread(string[] contents, string tName)
-        {            
-            AddToListView(contents, count, tName);            
+        {                               
             Thread thread = new Thread(new ParameterizedThreadStart(StartLoggin));
             thread.IsBackground = true;
             thread.Name = tName;
             _threads.Add(thread);
-            thread.Start(contents);
-            count++;
-            strtBtn.Enabled = true;
+            thread.Start(contents);           
         }
 
         public void KillThread(string tName)
-        {            
-            foreach (Thread thread in _threads)
+        {
+            try
             {
-                if (thread.Name == tName)
-                    thread.Abort();
+                foreach (Thread thread in _threads)
+                {
+                    if (thread.Name == tName)
+                    {
+                        thread.Abort();
+                        RemoveThread(thread);
+                        break;
+                    }
+                }
             }
+            catch { }
+        }
+
+        public void RemoveThread(Thread t)
+        {
+            _threads.Remove(t);
         }
 
         private void strtBtn_Click(object sender, EventArgs e)
         {
             AddLogger();
-        }        
-        
-        private void AddLogger()
+        }
+        private void BtnActions()
         {
             strtBtn.Enabled = false;
-            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };                       
-            if (val.ValidateForm(txtboxStr))
+            timer1.Enabled = true;
+        }
+        private void AddLogger()
+        {            
+            string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };
+            if (!(val.ValidateForm(txtboxStr))) 
             {
-                string tName = val.GetUniqueId(_threadNames);
-                _threadNames.Add(tName);
-                LaunchThread(txtboxStr,tName);
+                Error("Enter all the fields");
             }
-            else
+            else if(!(val.CheckLoggerNameExist(lgrNameTxt.Text)))
             {
-                MessageBox.Show("Please enter all the inputs", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Error("Logger Name already exist. Please choose a different name");
             }
+            else 
+            {
+                //string tName = lgrNameTxt.Text;                
+                BtnActions();
+                AddToListView(txtboxStr, count++);
+                //LaunchThread(txtboxStr,tName);
+            }           
         }
 
         private void fldrBrwsBtn_Click(object sender, EventArgs e)
@@ -90,8 +120,8 @@ namespace DataLogger
             int prt = Convert.ToInt32(contents[2]);
             TcpClient tc = new TcpClient();
             try { tc.Connect(contents[1], prt); }
-            catch { Error("Cannot connect to the client"); setflag = false; }
-            Thread.Sleep(2000);
+            catch { Error("Cannot connect to the client"); setflag = false; ActivateLoggerStop(logrName); }
+            Thread.Sleep(2000);            
             while (setflag)
             {
                 try
@@ -104,6 +134,7 @@ namespace DataLogger
                     }
                     if (s1 < fileSize)
                     {
+                        _manifestFile[logrName] = fileName;
                         NetworkStream ns = tc.GetStream();
                         byte[] instream = new byte[tc.ReceiveBufferSize];
                         int actuallyRead = ns.Read(instream, 0, tc.ReceiveBufferSize);
@@ -129,11 +160,20 @@ namespace DataLogger
                 }
                 catch
                 {
-                    Error("Cannot connect to socket");
+                    MessageBox.Show("Logger Stopped","Information",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    ActivateLoggerStop(logrName);
                     break;
                 }
             }            
         }
+
+        private void ActivateLoggerStop(string logrName)
+        {
+            Button b = (Button)_manifestBtn[logrName];
+            int index = (int)_manifestIndex[logrName];
+            LoggerStop(b, logrName, index);
+        }
+
         private void Error(string msg)
         {
             MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -145,9 +185,9 @@ namespace DataLogger
                 string allData = File.ReadAllText(fileName);
                 CompressStringToFile(fileName + ".gz", allData);
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show(ex.ToString());
+                Error("Cannot compress file");
             }
         }
         public string GetFileName(string fldrName,string logrName)
@@ -159,38 +199,69 @@ namespace DataLogger
             fileName = fldrName + "\\" + fileName + ".txt";                        
             return fileName;
         }
-        public void AddToListView(string[] contents,int cnt, string unid)
-        {                        
+        public void AddToListView(string[] contents,int cnt)
+        {
+            
             string logrName = contents[0];
             string ipAddr = contents[1];
             string fileSize = contents[3];
             string prtNo = contents[2];
             string fldrName = contents[4];
-            string[] toListView = new string[4] { logrName, ipAddr, prtNo, "Active" };
+            _manifest.Add(logrName, contents);
+            string[] toListView = new string[4] { logrName, ipAddr, prtNo, "Stopped" };
             ListViewItem itm = new ListViewItem(toListView);
             logrList.Items.Add(itm);            
             Button b = new Button();
-            b.Text = "Stop";
+            b.Text = "Start";
             b.BackColor = SystemColors.Control;
             b.Font = this.Font;
-            b.Name = unid;
-            b.Click += new EventHandler(b_Stop);            
-            logrList.AddEmbeddedControl(b, 4, cnt);            
+            b.Name = logrName;
+            b.Click += new EventHandler(b_Actions);            
+            logrList.AddEmbeddedControl(b, 4, cnt);
+            _currentAction[logrName] = 0;
+            _manifestIndex.Add(logrName, cnt);
+            _manifestBtn.Add(logrName, b);
+            logrList.Items[cnt].ForeColor = Color.Red;
         }
 
-        public void b_Stop(object sender, EventArgs e)
+        public void b_Actions(object sender, EventArgs e)
         {          
             Button b = (Button)sender;
             string n = b.Name;
-            KillThread(n);
-            b.Text = "Start";
-            b.Click += new EventHandler(b_Start);
+            int index = (int)_manifestIndex[n];
+            if ((int)_currentAction[n] == 1)
+            {
+                LoggerStop(b, n, index);
+            }
+            else if ((int)_currentAction[n] == 0)
+            {
+                LoggerStart(b, n, index);             
+            }                                  
         }
 
-        public void b_Start(object sender, EventArgs e)
+        public void LoggerStop(Button b, string n, int index)
         {
-            Button b = (Button)sender;
-            string n = b.Name;
+            KillThread(n);
+            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));
+            //b.Text = "Start";
+            _currentAction[n] = 0;
+            //logrList.Items[index].ForeColor = Color.Red;
+
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Stopped"));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));
+            //logrList.Items[index].SubItems[3].Text = "Stopped";
+            string oldFile = (string)_manifestFile[n];
+            CompressOldFile(oldFile);        
+        }
+
+        public void LoggerStart(Button b, string n, int index)
+        {
+            b.Text = "Stop";
+            string[] con = (string[])_manifest[n];
+            LaunchThread(con, n);
+            _currentAction[n] = 1;
+            logrList.Items[index].ForeColor = Color.Green;
+            logrList.Items[index].SubItems[3].Text = "Active"; 
         }
 
         public static void CompressStringToFile(string fileName, string value)
@@ -202,12 +273,18 @@ namespace DataLogger
             {
                 b = new byte[f.Length];
                 f.Read(b, 0, (int)f.Length);
-            }
+            } 
             using (FileStream f2 = new FileStream(fileName,FileMode.Create))
             using (GZipStream gz = new GZipStream(f2,CompressionMode.Compress,false))
             {
                 gz.Write(b,0,b.Length);
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            strtBtn.Enabled = true;
+            this.timer1.Enabled = false;
         }        
     }
 }

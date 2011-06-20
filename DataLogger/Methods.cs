@@ -7,6 +7,13 @@ namespace DataLogger
 {
     class Methods
     {
+        private ArrayList _loggerNames;
+        private ArrayList _threadNames;
+        public Methods()
+        {
+            _loggerNames = new ArrayList();
+            _threadNames = new ArrayList();
+        }
         public bool ValidateForm(string[] testStrings)
         {           
             foreach (string t in testStrings)
@@ -18,6 +25,19 @@ namespace DataLogger
                 
             }
             return true;
+        }
+
+        public bool CheckLoggerNameExist(string loggerName)
+        {
+            if (_loggerNames.Contains(loggerName))
+            {
+                return false;
+            }
+            else
+            {
+                _loggerNames.Add(loggerName);
+                return true;
+            }
         }
 
         public long GetBytesAsLong(string mb)
@@ -36,13 +56,14 @@ namespace DataLogger
             return true;
         }
 
-        public string GetUniqueId(ArrayList al)
+        public string GetUniqueId()
         {
             string uniqueId = RandomString(10, true);
-            while (al.Contains(uniqueId))
+            while (_threadNames.Contains(uniqueId))
             {
                 uniqueId = RandomString(10, true);
             }
+            _threadNames.Add(uniqueId);
             return uniqueId;
         }
         private string RandomString(int size, bool lowerCase)
