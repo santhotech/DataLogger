@@ -36,10 +36,10 @@ namespace DataLogger
             return true;
         }
 
-        public string GetUniqueId(Hashtable ht)
+        public string GetUniqueId(ArrayList al)
         {
             string uniqueId = RandomString(10, true);
-            while (ht.ContainsKey(uniqueId))
+            while (al.Contains(uniqueId))
             {
                 uniqueId = RandomString(10, true);
             }

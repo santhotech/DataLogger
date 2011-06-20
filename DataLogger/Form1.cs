@@ -20,11 +20,13 @@ namespace DataLogger
         int count = 0;
         Hashtable ht = new Hashtable();
         private IList<Thread> _threads;
+        private ArrayList _threadNames;
                     
         public Form1()
         {
             InitializeComponent();
             _threads = new List<Thread>();
+            _threadNames = new ArrayList();
         }
 
         public void LaunchThread(string[] contents, string tName)
@@ -35,7 +37,8 @@ namespace DataLogger
             thread.Name = tName;
             _threads.Add(thread);
             thread.Start(contents);
-            count++;                       
+            count++;
+            strtBtn.Enabled = true;
         }
 
         public void KillThread(string tName)
@@ -53,11 +56,14 @@ namespace DataLogger
         }        
         
         private void AddLogger()
-        {                            
+        {
+            strtBtn.Enabled = false;
             string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };                       
             if (val.ValidateForm(txtboxStr))
             {
-                LaunchThread(txtboxStr);
+                string tName = val.GetUniqueId(_threadNames);
+                _threadNames.Add(tName);
+                LaunchThread(txtboxStr,tName);
             }
             else
             {
