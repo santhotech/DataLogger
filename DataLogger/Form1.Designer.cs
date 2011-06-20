@@ -317,7 +317,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "System Insights - Data Logger";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            
             this.panel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
