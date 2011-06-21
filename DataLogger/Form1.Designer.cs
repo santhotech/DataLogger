@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.fileSizeTxt = new System.Windows.Forms.NumericUpDown();
             this.fldrBrwsBtn = new System.Windows.Forms.Button();
             this.strtBtn = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
@@ -45,24 +46,23 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.Logo = new System.Windows.Forms.PictureBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.fileSizeTxt = new System.Windows.Forms.NumericUpDown();
             this.logrList = new DataLogger.ListViewEx();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.Logo = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -99,6 +99,19 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Add New Logger";
             // 
+            // fileSizeTxt
+            // 
+            this.fileSizeTxt.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fileSizeTxt.Location = new System.Drawing.Point(92, 97);
+            this.fileSizeTxt.Name = "fileSizeTxt";
+            this.fileSizeTxt.Size = new System.Drawing.Size(60, 20);
+            this.fileSizeTxt.TabIndex = 5;
+            this.fileSizeTxt.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // fldrBrwsBtn
             // 
             this.fldrBrwsBtn.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -128,7 +141,7 @@
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.Black;
-            this.label6.Location = new System.Drawing.Point(10, 97);
+            this.label6.Location = new System.Drawing.Point(3, 97);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(83, 14);
             this.label6.TabIndex = 2;
@@ -162,7 +175,6 @@
             this.fldrNameTxt.ReadOnly = true;
             this.fldrNameTxt.Size = new System.Drawing.Size(88, 20);
             this.fldrNameTxt.TabIndex = 1;
-            this.fldrNameTxt.Text = "C:\\Users\\santhosh\\Desktop\\big\\logs";
             // 
             // lgrNameTxt
             // 
@@ -188,11 +200,11 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(6, 123);
+            this.label5.Location = new System.Drawing.Point(36, 123);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(88, 14);
+            this.label5.Size = new System.Drawing.Size(50, 14);
             this.label5.TabIndex = 0;
-            this.label5.Text = "Output Folder :";
+            this.label5.Text = "Output :";
             // 
             // label4
             // 
@@ -221,7 +233,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(61, 45);
+            this.label2.Location = new System.Drawing.Point(65, 45);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(23, 14);
             this.label2.TabIndex = 0;
@@ -238,56 +250,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Current Loggers";
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.Gainsboro;
-            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.Logo);
-            this.panel2.Controls.Add(this.label1);
-            this.panel2.Location = new System.Drawing.Point(7, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(801, 68);
-            this.panel2.TabIndex = 1;
-            // 
-            // Logo
-            // 
-            this.Logo.BackColor = System.Drawing.SystemColors.ControlText;
-            this.Logo.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.Logo.Image = ((System.Drawing.Image)(resources.GetObject("Logo.Image")));
-            this.Logo.Location = new System.Drawing.Point(653, 4);
-            this.Logo.Name = "Logo";
-            this.Logo.Size = new System.Drawing.Size(143, 59);
-            this.Logo.TabIndex = 30;
-            this.Logo.TabStop = false;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 2);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(114, 22);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Data Logger";
-            // 
-            // timer1
-            // 
-            this.timer1.Interval = 3000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // fileSizeTxt
-            // 
-            this.fileSizeTxt.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.fileSizeTxt.Location = new System.Drawing.Point(92, 97);
-            this.fileSizeTxt.Name = "fileSizeTxt";
-            this.fileSizeTxt.Size = new System.Drawing.Size(60, 20);
-            this.fileSizeTxt.TabIndex = 5;
-            this.fileSizeTxt.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             // 
             // logrList
             // 
@@ -330,6 +292,38 @@
             this.columnHeader5.Text = "operation";
             this.columnHeader5.Width = 72;
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.Gainsboro;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.Logo);
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Location = new System.Drawing.Point(7, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(801, 68);
+            this.panel2.TabIndex = 1;
+            // 
+            // Logo
+            // 
+            this.Logo.BackColor = System.Drawing.SystemColors.ControlText;
+            this.Logo.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Logo.Image = ((System.Drawing.Image)(resources.GetObject("Logo.Image")));
+            this.Logo.Location = new System.Drawing.Point(653, 4);
+            this.Logo.Name = "Logo";
+            this.Logo.Size = new System.Drawing.Size(143, 59);
+            this.Logo.TabIndex = 30;
+            this.Logo.TabStop = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Times New Roman", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(3, 2);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(114, 22);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Data Logger";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -345,11 +339,11 @@
             this.panel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).EndInit();
             this.ResumeLayout(false);
 
         }

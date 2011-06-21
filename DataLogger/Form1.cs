@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Collections;
-using System.IO.Compression;
+
 
 namespace DataLogger
 {
@@ -18,7 +18,7 @@ namespace DataLogger
     {       
         Methods val = new Methods();        
         int count = 0;
-        private Hashtable _manifest;
+        private Hashtable _manifestContents;
         private Hashtable _currentAction;
         private Hashtable _manifestIndex;
         private Hashtable _manifestBtn;
@@ -30,7 +30,7 @@ namespace DataLogger
             InitializeComponent();
             _threads = new List<Thread>();
             _currentAction = new Hashtable();
-            _manifest = new Hashtable();
+            _manifestContents = new Hashtable();
             _manifestFile = new Hashtable();
             _manifestIndex = new Hashtable();
             _manifestBtn = new Hashtable();
@@ -59,8 +59,7 @@ namespace DataLogger
                     if (thread.Name == tName)
                     {
                         thread.Abort();
-                        RemoveThread(thread);
-                        break;
+                        RemoveThread(thread);                        
                     }
                 }
             }
@@ -75,12 +74,8 @@ namespace DataLogger
         private void strtBtn_Click(object sender, EventArgs e)
         {
             AddLogger();
-        }
-        private void BtnActions()
-        {
-            strtBtn.Enabled = false;
-            timer1.Enabled = true;
-        }
+        }       
+
         private void AddLogger()
         {            
             string[] txtboxStr = new string[5] { lgrNameTxt.Text, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text };
@@ -93,11 +88,8 @@ namespace DataLogger
                 Error("Logger Name already exist. Please choose a different name");
             }
             else 
-            {
-                //string tName = lgrNameTxt.Text;                
-                BtnActions();
-                AddToListView(txtboxStr, count++);
-                //LaunchThread(txtboxStr,tName);
+            {                                             
+                AddToListView(txtboxStr, count++);                
             }           
         }
 
@@ -116,9 +108,10 @@ namespace DataLogger
             string logrName = contents[0];
             string fldrName = contents[4];
             long fileSize = val.GetBytesAsLong(contents[3]);            
-            string fileName = GetFileName(fldrName, logrName);
+            string fileName = val.GetFileName(fldrName, logrName);
             int prt = Convert.ToInt32(contents[2]);
             TcpClient tc = new TcpClient();
+            tc.ReceiveTimeout = 10000;
             try { tc.Connect(contents[1], prt); }
             catch { Error("Cannot connect to the client"); setflag = false; ActivateLoggerStop(logrName); }
             Thread.Sleep(2000);            
@@ -149,13 +142,14 @@ namespace DataLogger
                         catch
                         {
                             Error("Error writing to file");
+                            ActivateLoggerStop(logrName);
                             break;
                         }
                     }
                     else
                     {
                         CompressOldFile(fileName);
-                        fileName = GetFileName(fldrName, logrName);    
+                        fileName = val.GetFileName(fldrName, logrName);    
                     }
                 }
                 catch
@@ -164,7 +158,8 @@ namespace DataLogger
                     ActivateLoggerStop(logrName);
                     break;
                 }
-            }            
+            }
+            tc.Close();
         }
 
         private void ActivateLoggerStop(string logrName)
@@ -183,31 +178,22 @@ namespace DataLogger
             try
             {
                 string allData = File.ReadAllText(fileName);
-                CompressStringToFile(fileName + ".gz", allData);
+                Methods.CompressStringToFile(fileName + ".gz", allData);
             }
             catch
             {
                 Error("Cannot compress file");
             }
         }
-        public string GetFileName(string fldrName,string logrName)
-        {
-            string fileName = DateTime.UtcNow.ToString("s");
-            fileName = logrName + "-" + fileName;
-            fileName = fileName.Replace(':', '-');
-            fileName = fileName.Replace(' ', '-');
-            fileName = fldrName + "\\" + fileName + ".txt";                        
-            return fileName;
-        }
+        
         public void AddToListView(string[] contents,int cnt)
-        {
-            
+        {            
             string logrName = contents[0];
             string ipAddr = contents[1];
             string fileSize = contents[3];
             string prtNo = contents[2];
             string fldrName = contents[4];
-            _manifest.Add(logrName, contents);
+            _manifestContents.Add(logrName, contents);
             string[] toListView = new string[4] { logrName, ipAddr, prtNo, "Stopped" };
             ListViewItem itm = new ListViewItem(toListView);
             logrList.Items.Add(itm);            
@@ -221,7 +207,7 @@ namespace DataLogger
             _currentAction[logrName] = 0;
             _manifestIndex.Add(logrName, cnt);
             _manifestBtn.Add(logrName, b);
-            logrList.Items[cnt].ForeColor = Color.Red;
+            logrList.Items[cnt].ForeColor = Color.Red;            
         }
 
         public void b_Actions(object sender, EventArgs e)
@@ -242,49 +228,22 @@ namespace DataLogger
         public void LoggerStop(Button b, string n, int index)
         {
             KillThread(n);
-            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));
-            //b.Text = "Start";
-            _currentAction[n] = 0;
-            //logrList.Items[index].ForeColor = Color.Red;
-
+            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));            
+            _currentAction[n] = 0;            
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Stopped"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));
-            //logrList.Items[index].SubItems[3].Text = "Stopped";
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));            
             string oldFile = (string)_manifestFile[n];
-            CompressOldFile(oldFile);        
+            if(oldFile != string.Empty) CompressOldFile(oldFile);        
         }
 
         public void LoggerStart(Button b, string n, int index)
         {
             b.Text = "Stop";
-            string[] con = (string[])_manifest[n];
+            string[] con = (string[])_manifestContents[n];
             LaunchThread(con, n);
             _currentAction[n] = 1;
             logrList.Items[index].ForeColor = Color.Green;
             logrList.Items[index].SubItems[3].Text = "Active"; 
-        }
-
-        public static void CompressStringToFile(string fileName, string value)
-        {
-            string temp = Path.GetTempFileName();
-            File.WriteAllText(temp, value);
-            byte[] b;
-            using (FileStream f = new FileStream(temp, FileMode.Open))
-            {
-                b = new byte[f.Length];
-                f.Read(b, 0, (int)f.Length);
-            } 
-            using (FileStream f2 = new FileStream(fileName,FileMode.Create))
-            using (GZipStream gz = new GZipStream(f2,CompressionMode.Compress,false))
-            {
-                gz.Write(b,0,b.Length);
-            }
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            strtBtn.Enabled = true;
-            this.timer1.Enabled = false;
-        }        
+        }      
     }
 }

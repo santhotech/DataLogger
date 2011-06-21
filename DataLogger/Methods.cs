@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using System.IO.Compression;
+using System.IO;
 
 namespace DataLogger
 {
@@ -80,5 +82,33 @@ namespace DataLogger
                 return builder.ToString().ToLower();
             return builder.ToString();
         }
+
+        public string GetFileName(string fldrName, string logrName)
+        {
+            string fileName = DateTime.UtcNow.ToString("s");
+            fileName = logrName + "-" + fileName;
+            fileName = fileName.Replace(':', '-');
+            fileName = fileName.Replace(' ', '-');
+            fileName = fldrName + "\\" + fileName + ".txt";
+            return fileName;
+        }
+
+        public static void CompressStringToFile(string fileName, string value)
+        {
+            string temp = Path.GetTempFileName();
+            File.WriteAllText(temp, value);
+            byte[] b;
+            using (FileStream f = new FileStream(temp, FileMode.Open))
+            {
+                b = new byte[f.Length];
+                f.Read(b, 0, (int)f.Length);
+            }
+            using (FileStream f2 = new FileStream(fileName, FileMode.Create))
+            using (GZipStream gz = new GZipStream(f2, CompressionMode.Compress, false))
+            {
+                gz.Write(b, 0, b.Length);
+            }
+        }
+
     }
 }
