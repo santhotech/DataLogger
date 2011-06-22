@@ -23,7 +23,8 @@ namespace DataLogger
         private Hashtable _manifestIndex;
         private Hashtable _manifestBtn;
         private IList<Thread> _threads;
-        private Hashtable _manifestFile;        
+        private Hashtable _manifestFile;
+        private Hashtable _objectIndex;
                     
         public Form1()
         {
@@ -34,42 +35,14 @@ namespace DataLogger
             _manifestFile = new Hashtable();
             _manifestIndex = new Hashtable();
             _manifestBtn = new Hashtable();
+            _objectIndex = new Hashtable();
+
 
             ImageList HeightControlImageList = new System.Windows.Forms.ImageList(this.components);
             HeightControlImageList.ImageSize = new System.Drawing.Size(1, 25);
             HeightControlImageList.TransparentColor = System.Drawing.Color.Transparent;
-            logrList.SmallImageList = HeightControlImageList;
-        }
-
-        public void LaunchThread(string[] contents, string tName)
-        {                               
-            Thread thread = new Thread(new ParameterizedThreadStart(StartLoggin));
-            thread.IsBackground = true;
-            thread.Name = tName;
-            _threads.Add(thread);
-            thread.Start(contents);           
-        }
-
-        public void KillThread(string tName)
-        {
-            try
-            {
-                foreach (Thread thread in _threads)
-                {
-                    if (thread.Name == tName)
-                    {
-                        thread.Abort();
-                        RemoveThread(thread);                        
-                    }
-                }
-            }
-            catch { }
-        }
-
-        public void RemoveThread(Thread t)
-        {
-            _threads.Remove(t);
-        }
+            logrList.SmallImageList = HeightControlImageList;          
+        }               
 
         private void strtBtn_Click(object sender, EventArgs e)
         {
@@ -89,8 +62,28 @@ namespace DataLogger
             }
             else 
             {                                             
-                AddToListView(txtboxStr, count++);                
+                AddToListView(txtboxStr, count++);
+                
+                Logger log = new Logger(txtboxStr);
+                log.LoggerStatusChanged +=new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);
+                _objectIndex.Add(txtboxStr[0], log);
             }           
+        }
+
+        public void log_LoggerStatusChanged(int status, string name)
+        {
+            if (status == 1)
+            {
+                LoggerWaiting(name);
+            }
+            if (status == 2)
+            {
+                LoggerStart(name);
+            }
+            if (status == 0)
+            {
+                LoggerStop(name);
+            }
         }
 
         private void fldrBrwsBtn_Click(object sender, EventArgs e)
@@ -99,80 +92,13 @@ namespace DataLogger
             {
                 fldrNameTxt.Text = folderBrowserDialog1.SelectedPath;
             }                        
-        }      
-
-        public void StartLoggin(object obj)
-        {
-            string[] contents = (string[])obj;
-            bool setflag = true;            
-            string logrName = contents[0];
-            string fldrName = contents[4];
-            long fileSize = val.GetBytesAsLong(contents[3]);            
-            string fileName = val.GetFileName(fldrName, logrName);
-            int prt = Convert.ToInt32(contents[2]);
-            TcpClient tc = new TcpClient();
-            tc.ReceiveTimeout = 10000;
-            try { tc.Connect(contents[1], prt); }
-            catch { Error("Cannot connect to the client"); setflag = false; ActivateLoggerStop(logrName); }
-            Thread.Sleep(2000);            
-            while (setflag)
-            {
-                try
-                {
-                    long s1 = 0;
-                    if (File.Exists(fileName))
-                    {
-                        FileInfo f = new FileInfo(fileName);
-                        s1 = f.Length;
-                    }
-                    if (s1 < fileSize)
-                    {
-                        _manifestFile[logrName] = fileName;
-                        NetworkStream ns = tc.GetStream();
-                        byte[] instream = new byte[tc.ReceiveBufferSize];
-                        int actuallyRead = ns.Read(instream, 0, tc.ReceiveBufferSize);
-                        string decodedData = string.Empty;
-                        decodedData = System.Text.Encoding.ASCII.GetString(instream, 0, actuallyRead);
-                        decodedData = decodedData.Trim('\0');
-                        decodedData = decodedData.Replace("\n", "\r\n");
-                        try
-                        {
-                            File.AppendAllText(fileName, decodedData);
-                        }
-                        catch
-                        {
-                            Error("Error writing to file");
-                            ActivateLoggerStop(logrName);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        CompressOldFile(fileName);
-                        fileName = val.GetFileName(fldrName, logrName);    
-                    }
-                }
-                catch
-                {
-                    MessageBox.Show("Logger Stopped","Information",MessageBoxButtons.OK,MessageBoxIcon.Information);
-                    ActivateLoggerStop(logrName);
-                    break;
-                }
-            }
-            tc.Close();
-        }
-
-        private void ActivateLoggerStop(string logrName)
-        {
-            Button b = (Button)_manifestBtn[logrName];
-            int index = (int)_manifestIndex[logrName];
-            LoggerStop(b, logrName, index);
-        }
+        }                     
 
         private void Error(string msg)
         {
             MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
         public void CompressOldFile(string fileName)
         {
             try
@@ -180,10 +106,7 @@ namespace DataLogger
                 string allData = File.ReadAllText(fileName);
                 Methods.CompressStringToFile(fileName + ".gz", allData);
             }
-            catch
-            {
-                Error("Cannot compress file");
-            }
+            catch{ }
         }
         
         public void AddToListView(string[] contents,int cnt)
@@ -210,40 +133,51 @@ namespace DataLogger
             logrList.Items[cnt].ForeColor = Color.Red;            
         }
 
+
         public void b_Actions(object sender, EventArgs e)
         {          
             Button b = (Button)sender;
-            string n = b.Name;
-            int index = (int)_manifestIndex[n];
-            if ((int)_currentAction[n] == 1)
+            string n = b.Name;            
+            Logger l = (Logger)_objectIndex[n];
+            if ((int)_currentAction[n] == 2)
             {
-                LoggerStop(b, n, index);
+                l.StopLoggin();                                                              
             }
             else if ((int)_currentAction[n] == 0)
-            {
-                LoggerStart(b, n, index);             
+            {                
+                l.StartLogging();                   
             }                                  
         }
-
-        public void LoggerStop(Button b, string n, int index)
+        
+        public void LoggerStart(string n)
         {
-            KillThread(n);
-            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));            
-            _currentAction[n] = 0;            
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Stopped"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));            
-            string oldFile = (string)_manifestFile[n];
-            if(oldFile != string.Empty) CompressOldFile(oldFile);        
-        }
-
-        public void LoggerStart(Button b, string n, int index)
-        {
-            b.Text = "Stop";
-            string[] con = (string[])_manifestContents[n];
-            LaunchThread(con, n);
-            _currentAction[n] = 1;
+            _currentAction[n] = 2; 
+            Button b = (Button)_manifestBtn[n];
+            int index = (int)_manifestIndex[n];
+            b.Text = "Stop";                        
             logrList.Items[index].ForeColor = Color.Green;
             logrList.Items[index].SubItems[3].Text = "Active"; 
-        }      
+        }
+
+        public void LoggerStop(string n)
+        {
+            _currentAction[n] = 0; 
+            Button b = (Button)_manifestBtn[n];
+            int index = (int)_manifestIndex[n];
+            b.BeginInvoke((MethodInvoker)(() => b.Enabled = true));
+            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));            
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Stopped"));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));            
+        }
+
+        public void LoggerWaiting(string n)
+        {
+            Button b = (Button)_manifestBtn[n];
+            int index = (int)_manifestIndex[n];
+            b.BeginInvoke((MethodInvoker)(() => b.Enabled = false));
+            b.BeginInvoke((MethodInvoker)(() => b.Text = "Waiting"));            
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Waiting"));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkOrange));                        
+        }  
     }
 }

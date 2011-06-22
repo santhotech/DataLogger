@@ -51,6 +51,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logger.cs" />
     <Compile Include="MethodsTest.cs" />
     <Compile Include="ListViewEx.cs">
       <SubType>Component</SubType>
