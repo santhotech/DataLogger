@@ -66,7 +66,8 @@ namespace DataLogger
         }
 
         public void LogData()
-        {                 
+        {
+            this.StateFlag = 2;
             string logrName = contents[0];
             string fldrName = contents[4];
             long fileSize = val.GetBytesAsLong(contents[3]);            
@@ -81,8 +82,7 @@ namespace DataLogger
             }
             catch 
             {
-                setFlag = false;
-                this.StateFlag = 0;
+                
             }
             
                   
@@ -111,9 +111,7 @@ namespace DataLogger
                             File.AppendAllText(fileName, decodedData);
                         }
                         catch
-                        {
-                            setFlag = false;
-                            this.StateFlag = 0;                 
+                        {                                                                    
                             break;
                         }
                     }
@@ -124,22 +122,30 @@ namespace DataLogger
                     }
                 }
                 catch
-                {
-                    setFlag = false;
-                    this.StateFlag = 0;            
+                {                                               
                     break;
                 }
             }
-            tc.Close();
-            this.StateFlag = 0;
+            tc.Close();            
+            if (setFlag)
+            {                
+                CompressOldFile(currentFileName);
+                LogData();
+            }
+            else
+            {                
+                this.StateFlag = 0;
+            }            
+            CompressOldFile(currentFileName);
         }
 
         public void KeepItRunning()
         {
             while (setFlag)
             {
-                if (true)
+                if (this.StateFlag == 0)
                 {
+                    this.StateFlag = 1;
                     //t.Start();
                 }
             }
@@ -150,6 +156,7 @@ namespace DataLogger
             try
             {
                 string allData = File.ReadAllText(fileName);
+                File.Delete(fileName);
                 Methods.CompressStringToFile(fileName + ".gz", allData);
             }
             catch {}

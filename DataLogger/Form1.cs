@@ -154,9 +154,10 @@ namespace DataLogger
             _currentAction[n] = 2; 
             Button b = (Button)_manifestBtn[n];
             int index = (int)_manifestIndex[n];
-            b.Text = "Stop";                        
-            logrList.Items[index].ForeColor = Color.Green;
-            logrList.Items[index].SubItems[3].Text = "Active"; 
+            b.BeginInvoke((MethodInvoker)(() => b.Enabled = true));
+            b.BeginInvoke((MethodInvoker)(() => b.Text = "Stop"));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Active"));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkGreen));    
         }
 
         public void LoggerStop(string n)
