@@ -46,17 +46,18 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.Logo = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.logrList = new DataLogger.ListViewEx();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.Logo = new System.Windows.Forms.PictureBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).BeginInit();
@@ -103,9 +104,14 @@
             // 
             this.fileSizeTxt.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fileSizeTxt.Location = new System.Drawing.Point(92, 97);
+            this.fileSizeTxt.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.fileSizeTxt.Name = "fileSizeTxt";
             this.fileSizeTxt.Size = new System.Drawing.Size(60, 20);
-            this.fileSizeTxt.TabIndex = 5;
+            this.fileSizeTxt.TabIndex = 3;
             this.fileSizeTxt.Value = new decimal(new int[] {
             1,
             0,
@@ -119,7 +125,7 @@
             this.fldrBrwsBtn.Location = new System.Drawing.Point(186, 123);
             this.fldrBrwsBtn.Name = "fldrBrwsBtn";
             this.fldrBrwsBtn.Size = new System.Drawing.Size(63, 20);
-            this.fldrBrwsBtn.TabIndex = 3;
+            this.fldrBrwsBtn.TabIndex = 5;
             this.fldrBrwsBtn.Text = "Browse";
             this.fldrBrwsBtn.UseVisualStyleBackColor = true;
             this.fldrBrwsBtn.Click += new System.EventHandler(this.fldrBrwsBtn_Click);
@@ -131,7 +137,7 @@
             this.strtBtn.Location = new System.Drawing.Point(92, 148);
             this.strtBtn.Name = "strtBtn";
             this.strtBtn.Size = new System.Drawing.Size(75, 23);
-            this.strtBtn.TabIndex = 4;
+            this.strtBtn.TabIndex = 6;
             this.strtBtn.Text = "Add Logger";
             this.strtBtn.UseVisualStyleBackColor = true;
             this.strtBtn.Click += new System.EventHandler(this.strtBtn_Click);
@@ -153,7 +159,7 @@
             this.prtTxt.Location = new System.Drawing.Point(92, 71);
             this.prtTxt.Name = "prtTxt";
             this.prtTxt.Size = new System.Drawing.Size(88, 20);
-            this.prtTxt.TabIndex = 1;
+            this.prtTxt.TabIndex = 2;
             this.prtTxt.Text = "7878";
             // 
             // label3
@@ -174,7 +180,7 @@
             this.fldrNameTxt.Name = "fldrNameTxt";
             this.fldrNameTxt.ReadOnly = true;
             this.fldrNameTxt.Size = new System.Drawing.Size(88, 20);
-            this.fldrNameTxt.TabIndex = 1;
+            this.fldrNameTxt.TabIndex = 4;
             // 
             // lgrNameTxt
             // 
@@ -183,7 +189,7 @@
             this.lgrNameTxt.MaxLength = 15;
             this.lgrNameTxt.Name = "lgrNameTxt";
             this.lgrNameTxt.Size = new System.Drawing.Size(88, 20);
-            this.lgrNameTxt.TabIndex = 2;
+            this.lgrNameTxt.TabIndex = 0;
             // 
             // ipTxt
             // 
@@ -191,7 +197,7 @@
             this.ipTxt.Location = new System.Drawing.Point(92, 45);
             this.ipTxt.Name = "ipTxt";
             this.ipTxt.Size = new System.Drawing.Size(88, 20);
-            this.ipTxt.TabIndex = 0;
+            this.ipTxt.TabIndex = 1;
             this.ipTxt.Text = "localhost";
             // 
             // label5
@@ -250,47 +256,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Current Loggers";
             // 
-            // logrList
-            // 
-            this.logrList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4,
-            this.columnHeader5});
-            this.logrList.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logrList.Location = new System.Drawing.Point(6, 19);
-            this.logrList.Name = "logrList";
-            this.logrList.Size = new System.Drawing.Size(514, 201);
-            this.logrList.TabIndex = 0;
-            this.logrList.UseCompatibleStateImageBehavior = false;
-            this.logrList.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Name";
-            this.columnHeader1.Width = 80;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "IP Address";
-            this.columnHeader2.Width = 80;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "Port";
-            this.columnHeader3.Width = 80;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Status";
-            this.columnHeader4.Width = 80;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "operation";
-            this.columnHeader5.Width = 72;
-            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Gainsboro;
@@ -323,6 +288,53 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Data Logger";
             // 
+            // logrList
+            // 
+            this.logrList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4,
+            this.columnHeader5,
+            this.columnHeader6});
+            this.logrList.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.logrList.Location = new System.Drawing.Point(6, 19);
+            this.logrList.Name = "logrList";
+            this.logrList.Size = new System.Drawing.Size(514, 201);
+            this.logrList.TabIndex = 0;
+            this.logrList.UseCompatibleStateImageBehavior = false;
+            this.logrList.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Name";
+            this.columnHeader1.Width = 80;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "IP Address";
+            this.columnHeader2.Width = 80;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Port";
+            this.columnHeader3.Width = 80;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Status";
+            this.columnHeader4.Width = 80;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Operation";
+            this.columnHeader5.Width = 72;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "";
+            this.columnHeader6.Width = 80;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -335,6 +347,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "System Insights - Data Logger";
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.Form_closing);
             this.panel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -376,6 +389,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader5;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.NumericUpDown fileSizeTxt;
+        private System.Windows.Forms.ColumnHeader columnHeader6;
     }
 }
 

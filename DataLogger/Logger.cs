@@ -14,8 +14,13 @@ namespace DataLogger
         private string[] contents;                
         private Methods val;
         private string currentFileName;
-
+        private string logrName;
+        private string fldrName;
+        private long fileSize;
+        private string fileName;
+        private int prt;
         private int stateFlag;
+        private string ipAddr;       
 
         public delegate void LoggerStatusChangedEventHandler(int curFlag, string name);
         public event LoggerStatusChangedEventHandler LoggerStatusChanged;
@@ -30,30 +35,26 @@ namespace DataLogger
                     this.LoggerStatusChanged(stateFlag,contents[0]);
                 }
             }
-        }        
-        //Thread keepAlive;
+        }
+
+
+        public Logger() { }        
+        
         public Logger(string[] contents)
         {
-            this.contents = contents;            
-            
-            val = new Methods();
-            
+            this.contents = contents;                        
+            val = new Methods();            
+            logrName = contents[5];
+            ipAddr = contents[1];
+            prt = Convert.ToInt32(contents[2]);
+            fileSize = val.GetBytesAsLong(contents[3]);
+            fldrName = contents[4];                                            
         }
 
         public void StartLogging()
         {
-            /*
-            keepAlive = new Thread(new ThreadStart(KeepItRunning));
-            keepAlive.IsBackground = true;
-            keepAlive.Start();
-             * 
-             * 
-             * */                      
-
-            setFlag = true;
-
             this.StateFlag = 2;
-
+            setFlag = true;            
             Thread t = new Thread(new ThreadStart(LogData));
             t.IsBackground = true;            
             t.Start();            
@@ -61,82 +62,65 @@ namespace DataLogger
 
         public void StopLoggin()
         {
-            setFlag = false;
             this.StateFlag = 1;
+            setFlag = false;            
         }
-
+        
         public void LogData()
         {
-            this.StateFlag = 2;
-            string logrName = contents[0];
-            string fldrName = contents[4];
-            long fileSize = val.GetBytesAsLong(contents[3]);            
-            string fileName = val.GetFileName(fldrName, logrName);
-            int prt = Convert.ToInt32(contents[2]);
-
-            TcpClient tc = new TcpClient();
-            tc.ReceiveTimeout = 5000;
-            try
-            {
-                tc.Connect(contents[1], prt);
-            }
-            catch 
-            {
-                
-            }
-            
-                  
+            TcpClient tc = GetTcpClient();
+            fileName = val.GetFileName(fldrName, logrName);                                        
             while (setFlag)
-            {
-                try
+            {               
+                long s1 = ReturnFileSize(fileName);
+                if (s1 < fileSize)
                 {
-                    long s1 = 0;
-                    if (File.Exists(fileName))
-                    {
-                        FileInfo f = new FileInfo(fileName);
-                        s1 = f.Length;
-                    }
-                    if (s1 < fileSize)
+                    try
                     {
                         currentFileName = fileName;
-                        NetworkStream ns = tc.GetStream();
                         byte[] instream = new byte[tc.ReceiveBufferSize];
-                        int actuallyRead = ns.Read(instream, 0, tc.ReceiveBufferSize);
+                        int actuallyRead = tc.GetStream().Read(instream, 0, tc.ReceiveBufferSize);
+                        if (actuallyRead == 0) break;
                         string decodedData = string.Empty;
                         decodedData = System.Text.Encoding.ASCII.GetString(instream, 0, actuallyRead);
                         decodedData = decodedData.Trim('\0');
                         decodedData = decodedData.Replace("\n", "\r\n");
-                        try
-                        {
-                            File.AppendAllText(fileName, decodedData);
-                        }
-                        catch
-                        {                                                                    
-                            break;
-                        }
+                        File.AppendAllText(fileName, decodedData);
                     }
-                    else
-                    {
-                        CompressOldFile(fileName);
-                        fileName = val.GetFileName(fldrName, logrName);    
-                    }
+                    catch { break; }
                 }
-                catch
-                {                                               
-                    break;
-                }
+                else
+                {
+                    CompressOldFile(fileName);
+                    fileName = val.GetFileName(fldrName, logrName);    
+                }               
             }
-            tc.Close();            
+            tc.Close();
+            CompressOldFile(currentFileName);
             if (setFlag)
-            {                
-                CompressOldFile(currentFileName);
+            {                                
                 LogData();
             }
             else
             {                
                 this.StateFlag = 0;
-            }            
-            CompressOldFile(currentFileName);
+            }                        
+        }
+
+        public TcpClient GetTcpClient()
+        {
+            TcpClient tc = new TcpClient();
+            tc.ReceiveTimeout = 10000;
+            while (setFlag)
+            {
+                try
+                {
+                    tc.Connect(ipAddr, prt);
+                    break;
+                }
+                catch { Thread.Sleep(5000); }
+            }
+            return tc;
         }
 
         public void KeepItRunning()
@@ -149,6 +133,22 @@ namespace DataLogger
                     //t.Start();
                 }
             }
+        }
+        
+
+        public long ReturnFileSize(string fileName)
+        {
+            long s1;
+            if (File.Exists(fileName))
+            {
+                FileInfo f = new FileInfo(fileName);
+                s1 = f.Length;
+            }
+            else
+            {
+                s1 = 0;
+            }
+            return s1;
         }
 
         public void CompressOldFile(string fileName)

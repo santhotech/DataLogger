@@ -42,6 +42,11 @@ namespace DataLogger
             }
         }
 
+        public void RemoveFromLoggerNames(string loggerName)
+        {
+            _loggerNames.Remove(loggerName);
+        }
+
         public long GetBytesAsLong(string mb)
         {
             long flSize = Convert.ToInt32(mb) * 1000000;
