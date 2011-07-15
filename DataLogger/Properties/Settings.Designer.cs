@@ -25,12 +25,13 @@ namespace DataLogger.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringCollection Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string loggers {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["Setting"]));
+                return ((string)(this["loggers"]));
             }
             set {
-                this["Setting"] = value;
+                this["loggers"] = value;
             }
         }
     }

@@ -24,6 +24,7 @@ namespace DataLogger
         private Hashtable _manifestFile;
         private Hashtable _objectIndex;
         private Hashtable _manifestDelBtn;
+        private Hashtable _persistLoggers;
                     
         public Form1()
         {
@@ -35,6 +36,7 @@ namespace DataLogger
             _manifestBtn = new Hashtable();
             _objectIndex = new Hashtable();
             _manifestDelBtn = new Hashtable();
+            _persistLoggers = new Hashtable();
 
 
             ImageList HeightControlImageList = new System.Windows.Forms.ImageList(this.components);
@@ -70,16 +72,51 @@ namespace DataLogger
             }
             Environment.Exit(0);
         }
+        ArrayList allLoggers = new ArrayList();
+        private void SaveLogger(string[] sc,int action)
+        {
+            string persistLoggers = string.Empty;
+            if (action == 1)
+            {
+                allLoggers.Add(sc);
+            }
+            else if (action == 2)
+            {
+                allLoggers.Remove(sc);
+            }
+            foreach (string[] sCol in allLoggers)
+            {
+                persistLoggers += string.Join(",", sCol) + "|" ;
+            }
+            Properties.Settings.Default.loggers = persistLoggers;
+            Properties.Settings.Default.Save();
+        }
 
         private void strtBtn_Click(object sender, EventArgs e)
         {            
             string[] txtboxStr = new string[6] { ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text, lgrNameTxt.Text, pingRequest.Checked.ToString() };
-            StringCollection sc = new StringCollection();
-            sc.AddRange(txtboxStr);
-            AddLogger(sc);
+            ValidateLogger(txtboxStr);            
         }       
 
-        private void AddLogger(StringCollection sc)
+        private void ValidateLogger(string[] sc)
+        {            
+            if (!(val.ValidateForm(sc))) 
+            {
+                Error("Enter all the fields");
+            }
+            else if(!(val.CheckLoggerNameExist(lgrNameTxt.Text)))
+            {
+                Error("Logger Name already exist. Please choose a different name");
+            }
+            else 
+            {
+                ClearForm();
+                SaveLogger(sc, 1);
+                AddLogger(sc);     
+            }           
+        }
+
+        private void AddLogger(string[] sc)
         {
             string unid = val.GetUniqueId();
             string[] txtboxStr = new string[7];
@@ -90,23 +127,11 @@ namespace DataLogger
                 txtboxStr[tmp] = str;
                 tmp++;
             }
-            if (!(val.ValidateForm(txtboxStr))) 
-            {
-                Error("Enter all the fields");
-            }
-            else if(!(val.CheckLoggerNameExist(lgrNameTxt.Text)))
-            {
-                Error("Logger Name already exist. Please choose a different name");
-            }
-            else 
-            {
-                ClearForm();         
-                AddToListView(txtboxStr);                
-                Logger log = new Logger(txtboxStr);
-                log.LoggerStatusChanged +=new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);                
-                _objectIndex.Add(unid, log);
-
-            }           
+            AddToListView(txtboxStr);
+            Logger log = new Logger(txtboxStr);
+            log.LoggerStatusChanged += new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);
+            _objectIndex.Add(unid, log);
+            _persistLoggers.Add(unid, sc);
         }
 
         public void ClearForm()
@@ -200,7 +225,9 @@ namespace DataLogger
             _currentAction.Remove(n);
             _manifestIndex.Remove(n);
             _manifestBtn.Remove(n);
-            _manifestDelBtn.Remove(n);                 
+            _manifestDelBtn.Remove(n);
+            string[] toRemove = (string[])_persistLoggers[n];
+            SaveLogger(toRemove, 2);
         }
         
 
@@ -262,6 +289,28 @@ namespace DataLogger
             b.BeginInvoke((MethodInvoker)(() => b.Text = "Waiting"));            
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Waiting"));
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkOrange));                        
-        }  
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            LoadExisitingLoggers();
+        }
+        private void LoadExisitingLoggers()
+        {
+            string prevLoggers = Properties.Settings.Default.loggers;
+            if (prevLoggers != string.Empty)
+            {
+                string[] splitLogger = prevLoggers.Split('|');
+                foreach (string str in splitLogger)
+                {
+                    string[] logrInfo = str.Split(',');
+                    if (logrInfo.Length == 6)
+                    {
+                        SaveLogger(logrInfo, 1);
+                        AddLogger(logrInfo);
+                    }
+                }
+            }
+        }
     }
 }

@@ -51,6 +51,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.pingRequest = new System.Windows.Forms.CheckBox();
             this.logrList = new DataLogger.ListViewEx();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -58,7 +59,6 @@
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.pingRequest = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSizeTxt)).BeginInit();
@@ -290,6 +290,16 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Data Logger";
             // 
+            // pingRequest
+            // 
+            this.pingRequest.AutoSize = true;
+            this.pingRequest.Location = new System.Drawing.Point(92, 149);
+            this.pingRequest.Name = "pingRequest";
+            this.pingRequest.Size = new System.Drawing.Size(74, 18);
+            this.pingRequest.TabIndex = 7;
+            this.pingRequest.Text = "Use Ping";
+            this.pingRequest.UseVisualStyleBackColor = true;
+            // 
             // logrList
             // 
             this.logrList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -337,16 +347,6 @@
             this.columnHeader6.Text = "";
             this.columnHeader6.Width = 80;
             // 
-            // pingRequest
-            // 
-            this.pingRequest.AutoSize = true;
-            this.pingRequest.Location = new System.Drawing.Point(92, 149);
-            this.pingRequest.Name = "pingRequest";
-            this.pingRequest.Size = new System.Drawing.Size(74, 18);
-            this.pingRequest.TabIndex = 7;
-            this.pingRequest.Text = "Use Ping";
-            this.pingRequest.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -360,6 +360,7 @@
             this.Name = "Form1";
             this.Text = "System Insights - Data Logger";
             this.Closing += new System.ComponentModel.CancelEventHandler(this.Form_closing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
