@@ -65,10 +65,28 @@ namespace DataLogger
             this.StateFlag = 1;
             setFlag = false;            
         }
+
+        public void SendPing(object tClient)
+        {
+            TcpClient tc = (TcpClient)tClient;
+            Byte[] outStream = System.Text.Encoding.ASCII.GetBytes("* PING");
+            while (setFlag)
+            {
+                try
+                {
+                    tc.GetStream().Write(outStream, 0, outStream.Length);
+                    Thread.Sleep(10000);
+                }
+                catch { }
+            }            
+        }
         
         public void LogData()
         {
             TcpClient tc = GetTcpClient();
+            Thread t = new Thread(new ParameterizedThreadStart(SendPing));
+            t.IsBackground = true;
+            t.Start(tc);
             fileName = val.GetFileName(fldrName, logrName);                                        
             while (setFlag)
             {               
@@ -110,7 +128,7 @@ namespace DataLogger
         public TcpClient GetTcpClient()
         {
             TcpClient tc = new TcpClient();
-            tc.ReceiveTimeout = 10000;
+            tc.ReceiveTimeout = 30000;
             while (setFlag)
             {
                 try
