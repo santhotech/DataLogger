@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Collections;
-
+using System.Collections.Specialized;
 
 namespace DataLogger
 {
@@ -72,14 +72,24 @@ namespace DataLogger
         }
 
         private void strtBtn_Click(object sender, EventArgs e)
-        {
-            AddLogger();
+        {            
+            string[] txtboxStr = new string[6] { ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text, lgrNameTxt.Text, pingRequest.Checked.ToString() };
+            StringCollection sc = new StringCollection();
+            sc.AddRange(txtboxStr);
+            AddLogger(sc);
         }       
 
-        private void AddLogger()
+        private void AddLogger(StringCollection sc)
         {
             string unid = val.GetUniqueId();
-            string[] txtboxStr = new string[6] { unid, ipTxt.Text, prtTxt.Text, fileSizeTxt.Text, fldrNameTxt.Text, lgrNameTxt.Text };
+            string[] txtboxStr = new string[7];
+            txtboxStr[0] = unid;
+            int tmp = 1;
+            foreach (string str in sc)
+            {
+                txtboxStr[tmp] = str;
+                tmp++;
+            }
             if (!(val.ValidateForm(txtboxStr))) 
             {
                 Error("Enter all the fields");
@@ -91,19 +101,17 @@ namespace DataLogger
             else 
             {
                 ClearForm();         
-                AddToListView(txtboxStr);
-                
+                AddToListView(txtboxStr);                
                 Logger log = new Logger(txtboxStr);
-                log.LoggerStatusChanged +=new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);
-                
+                log.LoggerStatusChanged +=new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);                
                 _objectIndex.Add(unid, log);
+
             }           
         }
 
         public void ClearForm()
         {
-            lgrNameTxt.Text = string.Empty;
-            fldrNameTxt.Text = string.Empty;
+            lgrNameTxt.Text = string.Empty;            
         }
 
         public void log_LoggerStatusChanged(int status, string name)
@@ -182,13 +190,11 @@ namespace DataLogger
             Button d = (Button)sender;
             string n = d.Name;
             n = n.Substring(0, 10);
-
             string[] loggName = (string[])_manifestContents[n];
             string logName = loggName[5];
             ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
             int ind = logrList.Items.IndexOf(indexItm);
             val.RemoveFromLoggerNames(logName);
-
             logrList.Items.RemoveAt(ind);
             _manifestContents.Remove(n);
             _currentAction.Remove(n);
@@ -218,11 +224,9 @@ namespace DataLogger
             _currentAction[n] = 2; 
             Button b = (Button)_manifestBtn[n];
             Button d = (Button)_manifestDelBtn[n];
-
             ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
-            int index=0;
+            int index = 0;
             logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
-
             d.BeginInvoke((MethodInvoker)(() => d.Enabled = false));
             b.BeginInvoke((MethodInvoker)(() => b.Enabled = true));
             b.BeginInvoke((MethodInvoker)(() => b.Text = "Stop"));

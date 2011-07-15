@@ -20,7 +20,9 @@ namespace DataLogger
         private string fileName;
         private int prt;
         private int stateFlag;
-        private string ipAddr;       
+        private string ipAddr;
+        private bool pongSrchBuffer;
+        private bool isPingNeeded;
 
         public delegate void LoggerStatusChangedEventHandler(int curFlag, string name);
         public event LoggerStatusChangedEventHandler LoggerStatusChanged;
@@ -48,7 +50,8 @@ namespace DataLogger
             ipAddr = contents[1];
             prt = Convert.ToInt32(contents[2]);
             fileSize = val.GetBytesAsLong(contents[3]);
-            fldrName = contents[4];                                            
+            fldrName = contents[4];
+            isPingNeeded = Convert.ToBoolean(contents[6]);                       
         }
 
         public void StartLogging()
@@ -75,18 +78,25 @@ namespace DataLogger
                 try
                 {
                     tc.GetStream().Write(outStream, 0, outStream.Length);
-                    Thread.Sleep(10000);
+                    Thread.Sleep(20000);
+                    if (pongSrchBuffer) { 
+                        pongSrchBuffer = false; 
+                    }
+                    else { setFlag = false; break; }
                 }
-                catch { }
+                catch { break; }
             }            
         }
         
         public void LogData()
         {
             TcpClient tc = GetTcpClient();
-            Thread t = new Thread(new ParameterizedThreadStart(SendPing));
-            t.IsBackground = true;
-            t.Start(tc);
+            if (isPingNeeded)
+            {
+                Thread t = new Thread(new ParameterizedThreadStart(SendPing));
+                t.IsBackground = true;
+                t.Start(tc);
+            }
             fileName = val.GetFileName(fldrName, logrName);                                        
             while (setFlag)
             {               
@@ -100,9 +110,11 @@ namespace DataLogger
                         int actuallyRead = tc.GetStream().Read(instream, 0, tc.ReceiveBufferSize);
                         if (actuallyRead == 0) break;
                         string decodedData = string.Empty;
+
                         decodedData = System.Text.Encoding.ASCII.GetString(instream, 0, actuallyRead);
                         decodedData = decodedData.Trim('\0');
                         decodedData = decodedData.Replace("\n", "\r\n");
+                        if (decodedData.Contains("PONG")) { pongSrchBuffer = true; }
                         File.AppendAllText(fileName, decodedData);
                     }
                     catch { break; }

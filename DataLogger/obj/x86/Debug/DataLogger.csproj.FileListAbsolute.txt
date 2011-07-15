@@ -18,3 +18,4 @@ C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\ob
 C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\obj\x86\Debug\ResGen.write.1.tlog
 C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\nunit.framework.dll
 C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\nunit.framework.xml
+C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe.config
