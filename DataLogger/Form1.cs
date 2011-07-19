@@ -17,13 +17,12 @@ namespace DataLogger
     public partial class Form1 : Form
     {       
         Methods val = new Methods();                      
-        LogPersister logPersister;
+        LogPersister logPersister  = new LogPersister();
         Dictionary<string,Manifest> _manifest = new Dictionary<string,Manifest>();
                     
         public Form1()
         {
-            InitializeComponent();                       
-            logPersister = new LogPersister();
+            InitializeComponent();                                   
             DrawHeightsForList();
         }
 
@@ -136,12 +135,8 @@ namespace DataLogger
         
         public void AddToListView(string[] contents, Logger log, string[] sc)
         {            
-            string logrName = contents[0];
-            string ipAddr = contents[1];
-            string fileSize = contents[3];
-            string prtNo = contents[2];
-            string fldrName = contents[4];
-            string[] toListView = new string[4] { contents[5], ipAddr, prtNo, "Stopped" };
+            string logrName = contents[0];            
+            string[] toListView = new string[4] { contents[5], contents[1], contents[2], "Stopped" };
             ListViewItem itm = new ListViewItem(toListView);
             logrList.Items.Add(itm);            
             Button b = new Button();
@@ -237,7 +232,7 @@ namespace DataLogger
             b.BeginInvoke((MethodInvoker)(() => b.Text = "Waiting"));            
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Waiting"));
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkOrange));                        
-        }
+        }        
 
         private void Form1_Load(object sender, EventArgs e)
         {

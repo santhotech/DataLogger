@@ -112,7 +112,8 @@ namespace DataLogger
                         currentFileName = fileName;
                         byte[] instream = new byte[tc.ReceiveBufferSize];
                         int actuallyRead = tc.GetStream().Read(instream, 0, tc.ReceiveBufferSize);
-                        if (actuallyRead == 0) break;
+                        // this is where it was timing out on its own, after ur recent comment ive commented this out.
+                        //if (actuallyRead == 0) break;
                         string decodedData = string.Empty;
                         decodedData = System.Text.Encoding.ASCII.GetString(instream, 0, actuallyRead);
                         decodedData = decodedData.Trim('\0');
