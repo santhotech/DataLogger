@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--This file represents the results of running a test suite-->
-<test-results name="C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe" total="4" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2011-06-24" time="17:20:37">
+<test-results name="C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe" total="4" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2011-07-19" time="09:26:09">
   <environment nunit-version="2.5.10.11092" clr-version="2.0.50727.4961" os-version="Microsoft Windows NT 6.1.7600.0" platform="Win32NT" cwd="C:\Program Files (x86)\NUnit 2.5.10\bin\net-2.0" machine-name="SI-INDIA-NB-05" user="santhosh" user-domain="SI-India-NB-05" />
   <culture-info current-culture="en-IN" current-uiculture="en-US" />
-  <test-suite type="Assembly" name="C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe" executed="True" result="Success" success="True" time="0.031" asserts="0">
+  <test-suite type="Assembly" name="C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe" executed="True" result="Success" success="True" time="0.063" asserts="0">
     <results>
-      <test-suite type="Namespace" name="DataLogger" executed="True" result="Success" success="True" time="0.030" asserts="0">
+      <test-suite type="Namespace" name="DataLogger" executed="True" result="Success" success="True" time="0.055" asserts="0">
         <results>
-          <test-suite type="TestFixture" name="LoggerTest" executed="True" result="Success" success="True" time="0.010" asserts="0">
+          <test-suite type="TestFixture" name="LoggerTest" executed="True" result="Success" success="True" time="0.043" asserts="0">
             <results>
-              <test-case name="DataLogger.LoggerTest.CheckFileSizeReturnSize" executed="True" result="Success" success="True" time="0.005" asserts="1" />
+              <test-case name="DataLogger.LoggerTest.CheckFileSizeReturnSize" executed="True" result="Success" success="True" time="0.024" asserts="1" />
               <test-case name="DataLogger.LoggerTest.CheckFileSizeReturnZero" executed="True" result="Success" success="True" time="0.001" asserts="2" />
             </results>
           </test-suite>
-          <test-suite type="TestFixture" name="MethodsTest" executed="True" result="Success" success="True" time="0.010" asserts="0">
+          <test-suite type="TestFixture" name="MethodsTest" executed="True" result="Success" success="True" time="0.007" asserts="0">
             <results>
-              <test-case name="DataLogger.MethodsTest.CheckValidationFail" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+              <test-case name="DataLogger.MethodsTest.CheckValidationFail" executed="True" result="Success" success="True" time="0.002" asserts="2" />
               <test-case name="DataLogger.MethodsTest.CheckValidationPass" executed="True" result="Success" success="True" time="0.001" asserts="1" />
             </results>
           </test-suite>

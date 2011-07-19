@@ -16,33 +16,23 @@ namespace DataLogger
 {
     public partial class Form1 : Form
     {       
-        Methods val = new Methods();                
-        private Hashtable _manifestContents;
-        private Hashtable _currentAction;
-        private Hashtable _manifestIndex;
-        private Hashtable _manifestBtn;        
-        private Hashtable _manifestFile;
-        private Hashtable _objectIndex;
-        private Hashtable _manifestDelBtn;
-        private Hashtable _persistLoggers;
+        Methods val = new Methods();                      
+        LogPersister logPersister;
+        Dictionary<string,Manifest> _manifest = new Dictionary<string,Manifest>();
                     
         public Form1()
         {
-            InitializeComponent();            
-            _currentAction = new Hashtable();
-            _manifestContents = new Hashtable();
-            _manifestFile = new Hashtable();
-            _manifestIndex = new Hashtable();
-            _manifestBtn = new Hashtable();
-            _objectIndex = new Hashtable();
-            _manifestDelBtn = new Hashtable();
-            _persistLoggers = new Hashtable();
+            InitializeComponent();                       
+            logPersister = new LogPersister();
+            DrawHeightsForList();
+        }
 
-
+        private void DrawHeightsForList()
+        {            
             ImageList HeightControlImageList = new System.Windows.Forms.ImageList(this.components);
             HeightControlImageList.ImageSize = new System.Drawing.Size(1, 25);
             HeightControlImageList.TransparentColor = System.Drawing.Color.Transparent;
-            logrList.SmallImageList = HeightControlImageList;          
+            logrList.SmallImageList = HeightControlImageList;         
         }
 
         public void Form_closing(object sender, CancelEventArgs cargs)
@@ -56,41 +46,22 @@ namespace DataLogger
         public void SafeClose()
         {
             ArrayList al = new ArrayList();
-            foreach (string de in _currentAction.Keys)
+            foreach (string de in _manifest.Keys)
             {
-                if ((int)_currentAction[de] == 2)
+                if ((int)_manifest[de].currentAction == 2)
                 {
                     al.Add(de);
                 }
             }
             foreach (string str in al)
             {
-                Button b = (Button)_manifestBtn[str];
+                Button b = (Button)_manifest[str].ctrlBtn;
                 EventArgs e = null;
                 b_Actions(b, e);
                 Thread.Sleep(3000);
             }
             Environment.Exit(0);
-        }
-        ArrayList allLoggers = new ArrayList();
-        private void SaveLogger(string[] sc,int action)
-        {
-            string persistLoggers = string.Empty;
-            if (action == 1)
-            {
-                allLoggers.Add(sc);
-            }
-            else if (action == 2)
-            {
-                allLoggers.Remove(sc);
-            }
-            foreach (string[] sCol in allLoggers)
-            {
-                persistLoggers += string.Join(",", sCol) + "|" ;
-            }
-            Properties.Settings.Default.loggers = persistLoggers;
-            Properties.Settings.Default.Save();
-        }
+        }                
 
         private void strtBtn_Click(object sender, EventArgs e)
         {            
@@ -110,14 +81,14 @@ namespace DataLogger
             }
             else 
             {
-                ClearForm();
-                SaveLogger(sc, 1);
+                lgrNameTxt.Text = string.Empty;                
                 AddLogger(sc);     
             }           
         }
 
         private void AddLogger(string[] sc)
         {
+            logPersister.SaveLogger(sc, 1);
             string unid = val.GetUniqueId();
             string[] txtboxStr = new string[7];
             txtboxStr[0] = unid;
@@ -127,17 +98,12 @@ namespace DataLogger
                 txtboxStr[tmp] = str;
                 tmp++;
             }
-            AddToListView(txtboxStr);
             Logger log = new Logger(txtboxStr);
             log.LoggerStatusChanged += new Logger.LoggerStatusChangedEventHandler(log_LoggerStatusChanged);
-            _objectIndex.Add(unid, log);
-            _persistLoggers.Add(unid, sc);
+            AddToListView(txtboxStr,log,sc);                                    
         }
 
-        public void ClearForm()
-        {
-            lgrNameTxt.Text = string.Empty;            
-        }
+       
 
         public void log_LoggerStatusChanged(int status, string name)
         {
@@ -168,46 +134,33 @@ namespace DataLogger
             MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }      
         
-        public void AddToListView(string[] contents)
+        public void AddToListView(string[] contents, Logger log, string[] sc)
         {            
             string logrName = contents[0];
             string ipAddr = contents[1];
             string fileSize = contents[3];
             string prtNo = contents[2];
             string fldrName = contents[4];
-
             string[] toListView = new string[4] { contents[5], ipAddr, prtNo, "Stopped" };
             ListViewItem itm = new ListViewItem(toListView);
-            logrList.Items.Add(itm); 
-           
+            logrList.Items.Add(itm);            
             Button b = new Button();
             b.Text = "Start";
             b.BackColor = SystemColors.Control;
             b.Font = this.Font;
             b.Name = logrName;
             b.Click += new EventHandler(b_Actions);
-
             Button d = new Button();
             d.Text = "Delete";
             b.BackColor = SystemColors.Control;
             d.Font = this.Font;
             d.Name = logrName+"Delete";
             d.Click += new EventHandler(d_Delete);
-
             int cnta = logrList.Items.IndexOf(itm);
-
             logrList.AddEmbeddedControl(b, 4, cnta);
             logrList.AddEmbeddedControl(d, 5, cnta);
-
             logrList.Items[cnta].ForeColor = Color.Red;
-
-            
-
-            _manifestContents.Add(logrName, contents);
-            _currentAction.Add(logrName,0);
-            _manifestIndex.Add(logrName, itm);
-            _manifestBtn.Add(logrName, b);
-            _manifestDelBtn.Add(logrName, d);            
+            _manifest.Add(logrName, new Manifest { allContents = contents, ctrlBtn = b, currentAction = 0, delBtn = d, listIndex = itm, logger = log, selectedContents = sc });
         }
 
         public void d_Delete(object sender, EventArgs e)
@@ -215,19 +168,15 @@ namespace DataLogger
             Button d = (Button)sender;
             string n = d.Name;
             n = n.Substring(0, 10);
-            string[] loggName = (string[])_manifestContents[n];
+            string[] loggName = (string[])_manifest[n].allContents;
             string logName = loggName[5];
-            ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
+            ListViewItem indexItm = (ListViewItem)_manifest[n].listIndex;
             int ind = logrList.Items.IndexOf(indexItm);
             val.RemoveFromLoggerNames(logName);
-            logrList.Items.RemoveAt(ind);
-            _manifestContents.Remove(n);
-            _currentAction.Remove(n);
-            _manifestIndex.Remove(n);
-            _manifestBtn.Remove(n);
-            _manifestDelBtn.Remove(n);
-            string[] toRemove = (string[])_persistLoggers[n];
-            SaveLogger(toRemove, 2);
+            logrList.Items.RemoveAt(ind);            
+            string[] toRemove = _manifest[n].selectedContents;
+            logPersister.SaveLogger(toRemove, 2);
+            _manifest.Remove(n);
         }
         
 
@@ -235,12 +184,12 @@ namespace DataLogger
         {          
             Button b = (Button)sender;
             string n = b.Name;            
-            Logger l = (Logger)_objectIndex[n];
-            if ((int)_currentAction[n] == 2)
+            Logger l = _manifest[n].logger;
+            if (_manifest[n].currentAction == 2)
             {
                 l.StopLoggin();                                                              
             }
-            else if ((int)_currentAction[n] == 0)
+            else if (_manifest[n].currentAction == 0)
             {                
                 l.StartLogging();                   
             }                                  
@@ -248,10 +197,10 @@ namespace DataLogger
         
         public void LoggerStart(string n)
         {
-            _currentAction[n] = 2; 
-            Button b = (Button)_manifestBtn[n];
-            Button d = (Button)_manifestDelBtn[n];
-            ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
+            _manifest[n].currentAction = 2;
+            Button b = _manifest[n].ctrlBtn;
+            Button d = _manifest[n].delBtn;
+            ListViewItem indexItm = _manifest[n].listIndex;
             int index = 0;
             logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
             d.BeginInvoke((MethodInvoker)(() => d.Enabled = false));
@@ -263,10 +212,10 @@ namespace DataLogger
 
         public void LoggerStop(string n)
         {
-            _currentAction[n] = 0; 
-            Button b = (Button)_manifestBtn[n];
-            Button d = (Button)_manifestDelBtn[n];
-            ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
+            _manifest[n].currentAction = 0;
+            Button b = _manifest[n].ctrlBtn;
+            Button d = _manifest[n].delBtn;
+            ListViewItem indexItm = _manifest[n].listIndex;
             int index = 0;
             logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
             d.BeginInvoke((MethodInvoker)(() => d.Enabled = true));
@@ -277,15 +226,14 @@ namespace DataLogger
         }
 
         public void LoggerWaiting(string n)
-        {
-            Button b = (Button)_manifestBtn[n];
-            Button d = (Button)_manifestDelBtn[n];
-            ListViewItem indexItm = (ListViewItem)_manifestIndex[n];
+        {            
+            Button b = _manifest[n].ctrlBtn;
+            Button d = _manifest[n].delBtn;
+            ListViewItem indexItm = _manifest[n].listIndex;
             int index = 0;
             logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
             d.BeginInvoke((MethodInvoker)(() => d.Enabled = false));
             b.BeginInvoke((MethodInvoker)(() => b.Enabled = false));
-
             b.BeginInvoke((MethodInvoker)(() => b.Text = "Waiting"));            
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Waiting"));
             logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkOrange));                        
@@ -295,22 +243,14 @@ namespace DataLogger
         {
             LoadExisitingLoggers();
         }
+
         private void LoadExisitingLoggers()
         {
-            string prevLoggers = Properties.Settings.Default.loggers;
-            if (prevLoggers != string.Empty)
+            ArrayList loggers = logPersister.LoadExisitingLoggers();
+            foreach (string[] sc in loggers)
             {
-                string[] splitLogger = prevLoggers.Split('|');
-                foreach (string str in splitLogger)
-                {
-                    string[] logrInfo = str.Split(',');
-                    if (logrInfo.Length == 6)
-                    {
-                        SaveLogger(logrInfo, 1);
-                        AddLogger(logrInfo);
-                    }
-                }
+                AddLogger(sc);
             }
-        }
+        }        
     }
 }

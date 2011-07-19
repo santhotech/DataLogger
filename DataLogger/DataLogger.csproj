@@ -54,6 +54,8 @@
     <Compile Include="Logger.cs" />
     <Compile Include="LoggerLog.cs" />
     <Compile Include="LoggerTest.cs" />
+    <Compile Include="LogPersister.cs" />
+    <Compile Include="Manifest.cs" />
     <Compile Include="MethodsTest.cs" />
     <Compile Include="ListViewEx.cs">
       <SubType>Component</SubType>

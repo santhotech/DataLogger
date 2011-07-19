@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace DataLogger
 {
-    class Logger
+    public class Logger
     {
         private bool setFlag;
         private string[] contents;                
@@ -101,8 +101,7 @@ namespace DataLogger
                 Thread t = new Thread(new ParameterizedThreadStart(SendPing));
                 t.IsBackground = true;
                 t.Start(tc);
-            }
-                          
+            }                          
             while (setFlag)
             {                
                 long s1 = ReturnFileSize(fileName);
@@ -166,20 +165,7 @@ namespace DataLogger
             }
             return tc;
         }
-
-        public void KeepItRunning()
-        {
-            while (setFlag)
-            {
-                if (this.StateFlag == 0)
-                {
-                    this.StateFlag = 1;
-                    //t.Start();
-                }
-            }
-        }
-        
-
+                
         public long ReturnFileSize(string fileName)
         {
             long s1;
@@ -188,10 +174,7 @@ namespace DataLogger
                 FileInfo f = new FileInfo(fileName);
                 s1 = f.Length;
             }
-            else
-            {
-                s1 = 0;
-            }
+            else { s1 = 0; }
             return s1;
         }
 

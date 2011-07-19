@@ -6,7 +6,7 @@
   <Nodes>
     <Node UniqueName="[0-1006]C:\Users\santhosh\Documents\Visual Studio 2010\Projects\DataLogger\DataLogger\bin\Debug\DataLogger.exe" Expanded="true" />
     <Node UniqueName="[0-1007]DataLogger" Expanded="true" Checked="true" />
-    <Node UniqueName="[0-1003]DataLogger.LoggerTest" Expanded="true" />
-    <Node UniqueName="[0-1000]DataLogger.MethodsTest" Expanded="true" />
+    <Node UniqueName="[0-1000]DataLogger.LoggerTest" Expanded="true" />
+    <Node UniqueName="[0-1003]DataLogger.MethodsTest" Expanded="true" />
   </Nodes>
 </VisualState>
