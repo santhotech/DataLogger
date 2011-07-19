@@ -23,6 +23,7 @@ namespace DataLogger
         private string ipAddr;
         private bool pongSrchBuffer;
         private bool isPingNeeded;
+        private LoggerLog logEntry;
 
         public delegate void LoggerStatusChangedEventHandler(int curFlag, string name);
         public event LoggerStatusChangedEventHandler LoggerStatusChanged;
@@ -51,11 +52,13 @@ namespace DataLogger
             prt = Convert.ToInt32(contents[2]);
             fileSize = val.GetBytesAsLong(contents[3]);
             fldrName = contents[4];
-            isPingNeeded = Convert.ToBoolean(contents[6]);                       
+            isPingNeeded = Convert.ToBoolean(contents[6]);
+            logEntry = new LoggerLog(logrName, fldrName);   
         }
 
         public void StartLogging()
         {
+            fileName = val.GetFileName(fldrName, logrName);
             this.StateFlag = 2;
             setFlag = true;            
             Thread t = new Thread(new ThreadStart(LogData));
@@ -78,8 +81,10 @@ namespace DataLogger
                 try
                 {
                     tc.GetStream().Write(outStream, 0, outStream.Length);
+                    logEntry.WriteLog("Ping Sent");
                     Thread.Sleep(20000);
-                    if (pongSrchBuffer) { 
+                    if (pongSrchBuffer) {
+                        logEntry.WriteLog("Pong Recieved");
                         pongSrchBuffer = false; 
                     }
                     else { setFlag = false; break; }
@@ -97,9 +102,9 @@ namespace DataLogger
                 t.IsBackground = true;
                 t.Start(tc);
             }
-            fileName = val.GetFileName(fldrName, logrName);                                        
+                          
             while (setFlag)
-            {               
+            {                
                 long s1 = ReturnFileSize(fileName);
                 if (s1 < fileSize)
                 {
@@ -110,29 +115,32 @@ namespace DataLogger
                         int actuallyRead = tc.GetStream().Read(instream, 0, tc.ReceiveBufferSize);
                         if (actuallyRead == 0) break;
                         string decodedData = string.Empty;
-
                         decodedData = System.Text.Encoding.ASCII.GetString(instream, 0, actuallyRead);
                         decodedData = decodedData.Trim('\0');
                         decodedData = decodedData.Replace("\n", "\r\n");
                         if (decodedData.Contains("PONG")) { pongSrchBuffer = true; }
                         File.AppendAllText(fileName, decodedData);
                     }
-                    catch { break; }
+                    catch(Exception ex) 
+                    {
+                        logEntry.WriteLog("Disconnected from Adapter - " + ex.ToString());
+                        break;  
+                    }
                 }
                 else
-                {
-                    CompressOldFile(fileName);
+                {                    
                     fileName = val.GetFileName(fldrName, logrName);    
                 }               
             }
-            tc.Close();
-            CompressOldFile(currentFileName);
+            logEntry.WriteLog("Disconnected from adapter because adapter closed the connection");
+            tc.Close();            
             if (setFlag)
             {                                
                 LogData();
             }
             else
-            {                
+            {
+                CompressOldFile(currentFileName);
                 this.StateFlag = 0;
             }                        
         }
@@ -145,10 +153,16 @@ namespace DataLogger
             {
                 try
                 {
+                    logEntry.WriteLog("Trying to connect to the adapter");
                     tc.Connect(ipAddr, prt);
+                    logEntry.WriteLog("Connection successful");
                     break;
                 }
-                catch { Thread.Sleep(5000); }
+                catch(Exception ex) 
+                {
+                    logEntry.WriteLog("Connection Failed - reason - " + ex.ToString());
+                    Thread.Sleep(5000); 
+                }
             }
             return tc;
         }

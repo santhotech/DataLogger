@@ -52,6 +52,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Logger.cs" />
+    <Compile Include="LoggerLog.cs" />
     <Compile Include="LoggerTest.cs" />
     <Compile Include="MethodsTest.cs" />
     <Compile Include="ListViewEx.cs">
