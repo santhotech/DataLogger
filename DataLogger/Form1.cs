@@ -108,15 +108,17 @@ namespace DataLogger
         {
             if (status == 1)
             {
-                LoggerWaiting(name);
+                LoggerViewActions(name, false, false, "Waiting", "Waiting", Color.DarkOrange);                
             }
             if (status == 2)
             {
-                LoggerStart(name);
+                _manifest[name].currentAction = 2;
+                LoggerViewActions(name, false, true, "Stop", "Active", Color.DarkGreen);                
             }
             if (status == 0)
             {
-                LoggerStop(name);
+                _manifest[name].currentAction = 0;
+                LoggerViewActions(name, true, true, "Start", "Stopped", Color.Red);                
             }
         }
 
@@ -189,50 +191,20 @@ namespace DataLogger
                 l.StartLogging();                   
             }                                  
         }
-        
-        public void LoggerStart(string n)
-        {
-            _manifest[n].currentAction = 2;
-            Button b = _manifest[n].ctrlBtn;
-            Button d = _manifest[n].delBtn;
-            ListViewItem indexItm = _manifest[n].listIndex;
-            int index = 0;
-            logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
-            d.BeginInvoke((MethodInvoker)(() => d.Enabled = false));
-            b.BeginInvoke((MethodInvoker)(() => b.Enabled = true));
-            b.BeginInvoke((MethodInvoker)(() => b.Text = "Stop"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Active"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkGreen));    
-        }
 
-        public void LoggerStop(string n)
+        public void LoggerViewActions(string n,bool delBtn,bool ctrlBtn,string btnTxt, string lstTxt, Color lstColor)
         {
-            _manifest[n].currentAction = 0;
             Button b = _manifest[n].ctrlBtn;
             Button d = _manifest[n].delBtn;
             ListViewItem indexItm = _manifest[n].listIndex;
             int index = 0;
             logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
-            d.BeginInvoke((MethodInvoker)(() => d.Enabled = true));
-            b.BeginInvoke((MethodInvoker)(() => b.Enabled = true));
-            b.BeginInvoke((MethodInvoker)(() => b.Text = "Start"));            
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Stopped"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.Red));            
-        }
-
-        public void LoggerWaiting(string n)
-        {            
-            Button b = _manifest[n].ctrlBtn;
-            Button d = _manifest[n].delBtn;
-            ListViewItem indexItm = _manifest[n].listIndex;
-            int index = 0;
-            logrList.BeginInvoke((MethodInvoker)(() => index = logrList.Items.IndexOf(indexItm)));
-            d.BeginInvoke((MethodInvoker)(() => d.Enabled = false));
-            b.BeginInvoke((MethodInvoker)(() => b.Enabled = false));
-            b.BeginInvoke((MethodInvoker)(() => b.Text = "Waiting"));            
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = "Waiting"));
-            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = Color.DarkOrange));                        
-        }        
+            d.BeginInvoke((MethodInvoker)(() => d.Enabled = delBtn));
+            b.BeginInvoke((MethodInvoker)(() => b.Enabled = ctrlBtn));
+            b.BeginInvoke((MethodInvoker)(() => b.Text = btnTxt));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].SubItems[3].Text = lstTxt));
+            logrList.BeginInvoke((MethodInvoker)(() => logrList.Items[index].ForeColor = lstColor));
+        }                  
 
         private void Form1_Load(object sender, EventArgs e)
         {
